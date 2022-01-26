@@ -1,8 +1,14 @@
 # ROS-Gazebo_SCARA_SimulationControl
 ROS Package for simulating a Selective Compliance Articulated Robotic Arm (SCARA) with built in ROS topics for commanding End Effector position and monitioring joint angles
 
+
+![jhkj](https://user-images.githubusercontent.com/44533559/151183809-f2cab475-f284-4656-9820-c8d01b9794f7.png)
+
+
+
 **Introduction**
 	Pairing Gazebo’s powerful simulation engine with the robust ROS communication protocol offers endless possibilities in terms of robot design and control by allowing for a modular interaction infrastructure with the simulated robot. And while we are just scratching the surface, in this report, we aim to outline and describe our first attempt of simulating a given SCARA manipulator: from handwritten derivations to executed code.
+
 
 **Contents**
   1. Assumptions
@@ -17,12 +23,14 @@ ROS Package for simulating a Selective Compliance Articulated Robotic Arm (SCARA
   4. Service Server-Server Client Node Pseudo Code
   5. Appendix
     
+    
 
 **Assumptions**
 * Python libraries such as Numpy and Math are already installed and added as package dependencies
 * By “pose” the assignment refers to the geometry_msgs “Pose” message which is part position and part orientation (in quaternions)
 * Assigned arbitrary values to physical constants: link size/mass/inertia and gravity. These are all assigned at the start of the script and can be adjusted, all the math is done with variables
 * Only requested code to append to the report is the robot definition file. The full scripts for the publisher/subscriber and server/client nodes are included in the package. In this report, we focus on describing the theory behind the script implementation and on proving that we understand what the nodes should be doing and how we can use different ROS commands in the terminal to test our node performance
+
 
 
 **Instructions for Running ROS Package:**
@@ -41,6 +49,8 @@ ROS Package for simulating a Selective Compliance Articulated Robotic Arm (SCARA
   13. To confirm that the node is working “live”
   14. Use “rostopic echo Pose1” for a real time print of what is being published to the Pose1 topic 
 
+
+
 **Launching the Robot in Gazebo**
   1. Create a new package and make the necessary adjustments in the CmakeLists and the package files in order to allow for tools like rospy, message types, and message generation that are required for using existing message types and for allowing cross-platform script execution
   2. Create a URDF file to describe the robot. We followed the Gazebo tutorials as instructed and some of the most important lessons we learned were:
@@ -53,6 +63,8 @@ ROS Package for simulating a Selective Compliance Articulated Robotic Arm (SCARA
       * Loads the URDF (.xacro) file into the ROS Parameter server (has to find the appropriate .xacro file in the urdf folder in the said package
       * Launches the robot_state_publisher node which publishes joint state values that we can then subscribe to within our FK publisher/subscriber
       * Assigns the .yaml configuration file where joint state publisher and controller nodes can be set up. The controller in our configuration file was only used to test the robot and is not intended as a submission attempt for part 2 of the project (PID control).
+
+
 
 **Publisher/Subscriber Pseudo Code**
 	The subscriber section of the script follows the same format of the ROS tutorials where the subscriber is declared in the section defining the node that will be running the .py file. However, the publisher is declared outside of the node definition but the publishing command itself is implemented within the callback function. This way, the output from the callback function is published to the specified topic every single time the callback function is triggered. What triggers this callback function is a new “message” published by Gazebo joint_state_publisher to the “/simple_model/joint_states” topic as defined in the .launch and .yaml files. Every time a new set of joint states is published by Gazebo to the topic, our node that is subscribed to the same topic takes the message in the topic and feeds it to the callback function which completes the necessary calculations and then publishes a Pose message to a separate topic. The rest of the code is very simple:
